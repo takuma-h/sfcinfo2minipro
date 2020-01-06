@@ -8,9 +8,11 @@ monster.src = "monster.png";
 var heropara = { x : 0 , y : 0 , hp : 100 , mp : 0 };
 var enemypara = { x : 300 , y : 300 , hp : 100 , mp : 0 , life : true};
 var enemypara2 = { x : 500 , y : 500 , hp : 100 , mp : 0 , life : true};
+var enemypara3 = { x : 700 , y : 700 , hp : 100 , mp : 0 , life : true};
+var enemyarray = [enemypara, enemypara2, enemypara3];
 var battlecheck = false;
 var battleenemy;
-var enemycheck = 0;
+var enemycheck = 5;
 document.onkeydown = keydown;
 
 
@@ -31,8 +33,9 @@ function sizing(){
 $(document).ready( function(){ //サイト起動時の処理
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
-	ctx.drawImage(monster, enemypara.x, enemypara.y, 50, 50);
-	ctx.drawImage(monster, enemypara2.x, enemypara2.y, 50, 50);
+	for (let i = 0; i < enemyarray.length; i++) {
+		ctx.drawImage(monster, enemyarray[i].x, enemyarray[i].y, 50, 50);
+	}
 	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);
 	});
 
@@ -48,11 +51,10 @@ function keydown() { //キーイベント関数
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
-	if (enemypara.life) {
-		ctx.drawImage(monster, enemypara.x, enemypara.y, 50, 50);
-	}
-	if (enemypara2.life) {
-		ctx.drawImage(monster, enemypara2.x, enemypara2.y, 50, 50);
+	for (let i = 0; i < enemyarray.length; i++) {
+		if (enemyarray[i].life) {
+			ctx.drawImage(monster, enemyarray[i].x, enemyarray[i].y, 50, 50);
+		}
 	}
 	switch (keyname) {
 		case 37: //左矢印
@@ -74,18 +76,14 @@ function keydown() { //キーイベント関数
 		default:
 			break;
 	}
-	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);	
-	if (heropara.x === enemypara.x && heropara.y === enemypara.y && enemypara.life) {
-		ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
-		battleenemy = enemypara;
-		enemycheck = 1;
-		battlephase();
-	}
-	if (heropara.x === enemypara2.x && heropara.y === enemypara2.y && enemypara2.life) {
-		ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
-		battleenemy = enemypara2;
-		enemycheck = 2;
-		battlephase();
+	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);
+	for (let i = 0; i < enemyarray.length; i++) {
+		if (heropara.x === enemyarray[i].x && heropara.y === enemyarray[i].y && enemyarray[i].life) {
+			ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
+			battleenemy = enemyarray[i];
+			enemycheck = i;
+			battlephase();
+		}
 	}
 }
 
@@ -115,11 +113,7 @@ function commandfun(command) { //コマンド実行関数
 		$("#recoverymagic").html("");
 		battlecheck = false;
 		battleenemy.life = false;
-		if (enemycheck === 1) {
-			enemypara = battleenemy;
-		} else if (enemycheck === 2) {
-			enemypara2 = battleenemy;
-		}
+		enemyarray[enemycheck] = battleenemy;
 		return;
 	}
 	var enemy = damagecalc(ecommand, battleenemy, heropara);
