@@ -5,11 +5,12 @@ var hero = new Image();
 hero.src = "hero.jpg";
 var monster = new Image();
 monster.src = "monster.png";
-var coordinate = { x : 0 , y : 0 };
-var enemycoo = { x1 : 300 , y1 : 300};
-var heropara = { hp : 100 , mp : 0 };
-var enemypara = { hp : 100 , mp : 0 , life : true};
+var heropara = { x : 0 , y : 0 , hp : 100 , mp : 0 };
+var enemypara = { x : 300 , y : 300 , hp : 100 , mp : 0 , life : true};
+var enemypara2 = { x : 500 , y : 500 , hp : 100 , mp : 0 , life : true};
 var battlecheck = false;
+var battleenemy;
+var enemycheck = 0;
 document.onkeydown = keydown;
 
 
@@ -30,8 +31,9 @@ function sizing(){
 $(document).ready( function(){ //サイト起動時の処理
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
-	ctx.drawImage(monster, enemycoo.x1, enemycoo.y1, 50, 50);
-	ctx.drawImage(hero, coordinate.x, coordinate.y, 50, 50);
+	ctx.drawImage(monster, enemypara.x, enemypara.y, 50, 50);
+	ctx.drawImage(monster, enemypara2.x, enemypara2.y, 50, 50);
+	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);
 	});
 
 
@@ -47,36 +49,47 @@ function keydown() { //キーイベント関数
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
 	if (enemypara.life) {
-		ctx.drawImage(monster, enemycoo.x1, enemycoo.y1, 50, 50);
+		ctx.drawImage(monster, enemypara.x, enemypara.y, 50, 50);
+	}
+	if (enemypara2.life) {
+		ctx.drawImage(monster, enemypara2.x, enemypara2.y, 50, 50);
 	}
 	switch (keyname) {
 		case 37: //左矢印
-			coordinate.x -= 50;
+			heropara.x -= 50;
 			break;
 		
 		case 38: //上矢印
-			coordinate.y -= 50;
+			heropara.y -= 50;
 			break;
 
 		case 39: //右矢印
-			coordinate.x += 50;
+			heropara.x += 50;
 			break;
 
 		case 40: //下矢印
-			coordinate.y += 50;
+			heropara.y += 50;
 			break;
 
 		default:
 			break;
 	}
-	ctx.drawImage(hero, coordinate.x, coordinate.y, 50, 50);	
-	if (coordinate.x === enemycoo.x1 && coordinate.y === enemycoo.y1 && enemypara.life) {
+	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);	
+	if (heropara.x === enemypara.x && heropara.y === enemypara.y && enemypara.life) {
 		ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
-		battlephase(enemypara.hp, enemypara.mp)
+		battleenemy = enemypara;
+		enemycheck = 1;
+		battlephase();
+	}
+	if (heropara.x === enemypara2.x && heropara.y === enemypara2.y && enemypara2.life) {
+		ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
+		battleenemy = enemypara2;
+		enemycheck = 2;
+		battlephase();
 	}
 }
 
-function battlephase(HP, MP) { //戦闘開始関数
+function battlephase() { //戦闘開始関数
 	battlecheck = true;
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
@@ -90,29 +103,37 @@ function battlephase(HP, MP) { //戦闘開始関数
 
 function commandfun(command) { //コマンド実行関数
 	var ecommand = Math.floor(Math.random() * 3);
-	var hero = damagecalc(command, heropara, enemypara);
+	var hero = damagecalc(command, heropara, battleenemy);
 	heropara = hero[2];
-	enemypara = hero[3];
+	battleenemy = hero[3];
 	$("#heroparameters").html("勇者HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html("スライムHP:" + enemypara.hp + "MP:" + enemypara.mp);
+	$("#enemyparameters").html("スライムHP:" + battleenemy.hp + "MP:" + battleenemy.mp);
 	if (hero[0] === 3) {
 		$("#battlemessage").html("スライムは倒れた！<br>矢印キーでマップに戻る");
 		$("#attack").html("");
 		$("#attackmagic").html("");
 		$("#recoverymagic").html("");
 		battlecheck = false;
-		enemypara.life = false;
+		battleenemy.life = false;
+		if (enemycheck === 1) {
+			enemypara = battleenemy;
+		} else if (enemycheck === 2) {
+			enemypara2 = battleenemy;
+		}
 		return;
 	}
-	var enemy = damagecalc(ecommand, enemypara, heropara);
+	var enemy = damagecalc(ecommand, battleenemy, heropara);
 	heropara = enemy[3];
-	enemypara = enemy[2];
+	battleenemy = enemy[2];
 	heromessage(hero[0], hero[1], command);
 	enemymessage(enemy[0], enemy[1], ecommand);
 	$("#heroparameters").html("勇者HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html("スライムHP:" + enemypara.hp + "MP:" + enemypara.mp);
+	$("#enemyparameters").html("スライムHP:" + battleenemy.hp + "MP:" + battleenemy.mp);
 	if (enemy[0] === 3) {
-		$("#battlemessage").html("勇者は倒れた！");
+		$("#battlemessage").html("勇者は倒れた！<br>GAMEOVER");
+		$("#attack").html("");
+		$("#attackmagic").html("");
+		$("#recoverymagic").html("");
 		return;
 	}
 }
