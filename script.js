@@ -3,20 +3,36 @@ var wall = new Image();
 wall.src = "wall.png";
 var hero = new Image();
 hero.src = "hero.jpg";
-var monster = new Image();
-monster.src = "monster.png";
-var heropara = { x : 0 , y : 0 , hp : 100 , mp : 0 };
-var enemypara = { x : 300 , y : 300 , hp : 100 , mp : 0 , life : true};
-var enemypara2 = { x : 500 , y : 500 , hp : 100 , mp : 0 , life : true};
-var enemypara3 = { x : 700 , y : 700 , hp : 100 , mp : 0 , life : true};
-var enemyarray = [enemypara, enemypara2, enemypara3];
+var heropara = { x : 0 , y : 0 , hp : 300 , mp : 20 , pdamage : 20 , mdamage : 30 , healpoint : 30};
 var battlecheck = false;
 var battleenemy;
 var enemycheck = 5;
 document.onkeydown = keydown;
 
+//--------------------------------------------------------------------------------------------モンスター初期設定ここから
+class monster {
+	constructor(x, y, hp, mp, pdamage, mdamage, healpoint, image, name) {
+		this.x = x;
+		this.y = y;
+		this.hp = hp;
+		this.mp = mp;
+		this.pdamage = pdamage;
+		this.mdamage = mdamage;
+		this.healpoint = healpoint;
+		this.image = new Image();
+		this.image.src = image;
+		this.name = name;
+		this.life = true;
+	}
+}
 
-//------------------------------------------------------canvas設定
+var enemypara = new monster(300, 300, 100, 0, 20, 30, 30, 'monster.png', 'スライム');
+var enemypara2 = new monster(500, 500, 200, 20, 20, 30, 30, 'monster2.jpg', 'メタルキングスライム');
+var enemypara3 = new monster(700, 700, 100, 0, 20, 30, 30, 'monster.png', 'スライム');
+var enemyarray = [enemypara, enemypara2, enemypara3];
+//--------------------------------------------------------------------------------------------モンスター初期設定ここまで
+
+//------------------------------------------------------canvas設定ここから
 $(function () {
 	sizing();
 	$(window).resize(function() {
@@ -28,13 +44,13 @@ function sizing(){
 	$("#main").attr({height:$("#wrapper").height()});
 	$("#main").attr({width:$("#wrapper").width()});
 }
-//------------------------------------------------------canvas設定
+//------------------------------------------------------canvas設定ここまで
 
 $(document).ready( function(){ //サイト起動時の処理
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
 	for (let i = 0; i < enemyarray.length; i++) {
-		ctx.drawImage(monster, enemyarray[i].x, enemyarray[i].y, 50, 50);
+		ctx.drawImage(enemyarray[i].image, enemyarray[i].x, enemyarray[i].y, 50, 50);
 	}
 	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);
 	});
@@ -53,7 +69,7 @@ function keydown() { //キーイベント関数
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
 	for (let i = 0; i < enemyarray.length; i++) {
 		if (enemyarray[i].life) {
-			ctx.drawImage(monster, enemyarray[i].x, enemyarray[i].y, 50, 50);
+			ctx.drawImage(enemyarray[i].image, enemyarray[i].x, enemyarray[i].y, 50, 50);
 		}
 	}
 	switch (keyname) {
@@ -93,7 +109,9 @@ function battlephase() { //戦闘開始関数
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
 	//$('body').css('background-image', 'url(wall.png)');
-	$("#battlemessage").html("スライムが現れた！");
+	$("#battlemessage").html(battleenemy.name + "が現れた！");
+	$("#heroparameters").html("勇者　HP:" + heropara.hp + "MP:" + heropara.mp);
+	$("#enemyparameters").html(battleenemy.name + "　HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
 	$("#attack").html("こうげき");
 	$("#attackmagic").html("こうげきまほう");
 	$("#recoverymagic").html("かいふくまほう");
@@ -101,13 +119,12 @@ function battlephase() { //戦闘開始関数
 
 function commandfun(command) { //コマンド実行関数
 	var ecommand = Math.floor(Math.random() * 3);
-	var hero = damagecalc(command, heropara, battleenemy);
-	heropara = hero[2];
-	battleenemy = hero[3];
-	$("#heroparameters").html("勇者HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html("スライムHP:" + battleenemy.hp + "MP:" + battleenemy.mp);
-	if (hero[0] === 3) {
-		$("#battlemessage").html("スライムは倒れた！<br>矢印キーでマップに戻る");
+	var battlearray = damagecalc(command, heropara, battleenemy);
+	$("#heroparameters").html("勇者　HP:" + heropara.hp + "MP:" + heropara.mp);
+	$("#enemyparameters").html(battleenemy.name + "　HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
+	heromessage(battlearray[0], battlearray[1], command, battleenemy.name);
+	if (battlearray[0] === 3) {
+		$("#battlemessage").append(battleenemy.name + "は倒れた！<br>矢印キーでマップに戻る");
 		$("#attack").html("");
 		$("#attackmagic").html("");
 		$("#recoverymagic").html("");
@@ -116,15 +133,12 @@ function commandfun(command) { //コマンド実行関数
 		enemyarray[enemycheck] = battleenemy;
 		return;
 	}
-	var enemy = damagecalc(ecommand, battleenemy, heropara);
-	heropara = enemy[3];
-	battleenemy = enemy[2];
-	heromessage(hero[0], hero[1], command);
-	enemymessage(enemy[0], enemy[1], ecommand);
-	$("#heroparameters").html("勇者HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html("スライムHP:" + battleenemy.hp + "MP:" + battleenemy.mp);
-	if (enemy[0] === 3) {
-		$("#battlemessage").html("勇者は倒れた！<br>GAMEOVER");
+	battlearray = damagecalc(ecommand, battleenemy, heropara, battleenemy.name);
+	enemymessage(battlearray[0], battlearray[1], ecommand, battleenemy.name);
+	$("#heroparameters").html("勇者　HP:" + heropara.hp + "MP:" + heropara.mp);
+	$("#enemyparameters").html(battleenemy.name + "　HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
+	if (battlearray[0] === 3) {
+		$("#battlemessage").append("勇者は倒れた！<br>GAMEOVER");
 		$("#attack").html("");
 		$("#attackmagic").html("");
 		$("#recoverymagic").html("");
@@ -137,14 +151,14 @@ function damagecalc(command, mypara, yourpara) { //ダメージ計算
 	var damage = 0;
 	var random = Math.floor(Math.random() * 11);
 	if (command === 0) {
-		damage = 20 + random;
+		damage = mypara.pdamage + random;
 		yourpara.hp -= damage;
 	}
 	else if (command === 1) {
 		if (mypara.mp < 2) {
 			hitcheck = 1;
 		} else {
-			damage = 30 + random;
+			damage = mypara.mdamage + random;
 			yourpara.hp -= damage;
 			mypara.mp -= 2;
 		}
@@ -153,7 +167,7 @@ function damagecalc(command, mypara, yourpara) { //ダメージ計算
 		if (mypara.mp < 2) {
 			hitcheck = 2;
 		} else {
-			damage = 30 + random;
+			damage = mypara.healpoint + random;
 			mypara.hp += damage;
 			mypara.mp -= 2;
 		}
@@ -165,7 +179,7 @@ function damagecalc(command, mypara, yourpara) { //ダメージ計算
 	return [hitcheck, damage, mypara, yourpara];
 }
 
-function heromessage(hitcheck, damage, command) {
+function heromessage(hitcheck, damage, command, name) {
 	if (hitcheck === 1) {
 		$("#battlemessage").html("勇者はメラを唱えた！しかしMPが足りなかった。<br>");
 	}
@@ -173,30 +187,30 @@ function heromessage(hitcheck, damage, command) {
 		$("#battlemessage").html("勇者はホイミを唱えた！しかしMPが足りなかった。<br>");
 	}
 	else if (command === 0) {
-		$("#battlemessage").html("勇者のこうげき！スライムに" + damage + "のダメージ<br>");
+		$("#battlemessage").html("勇者のこうげき！" + name + "に" + damage + "のダメージ<br>");
 	}
 	else if (command === 1) {
-		$("#battlemessage").html("勇者はメラを唱えた！スライムに" + damage + "のダメージ<br>");
+		$("#battlemessage").html("勇者はメラを唱えた" + name + "に" + damage + "のダメージ<br>");
 	}
 	else if (command === 2) {
 		$("#battlemessage").html("勇者はホイミを唱えた！勇者は" + damage + "回復した！<br>");
 	}
 }
 
-function enemymessage(hitcheck, damage, command) {
+function enemymessage(hitcheck, damage, command, name) {
 	if (hitcheck === 1) {
-		$("#battlemessage").append("スライムはメラを唱えた！しかしMPが足りなかった。");
+		$("#battlemessage").append(name + "はメラを唱えた！しかしMPが足りなかった。");
 	}
 	else if (hitcheck === 2) {
-		$("#battlemessage").append("スライムはホイミを唱えた！しかしMPが足りなかった。");
+		$("#battlemessage").append(name + "はホイミを唱えた！しかしMPが足りなかった。");
 	}
 	else if (command === 0) {
-		$("#battlemessage").append("スライムのこうげき！勇者に" + damage + "のダメージ");
+		$("#battlemessage").append(name + "のこうげき！勇者に" + damage + "のダメージ");
 	}
 	else if (command === 1) {
-		$("#battlemessage").append("スライムはメラを唱えた！勇者に" + damage + "のダメージ");
+		$("#battlemessage").append(name + "はメラを唱えた！勇者に" + damage + "のダメージ");
 	}
 	else if (command === 2) {
-		$("#battlemessage").append("スライムはホイミを唱えた！スライムは" + damage + "回復した！");
+		$("#battlemessage").append(name + "はホイミを唱えた！" + name + "は" + damage + "回復した！");
 	}
 }
