@@ -115,6 +115,10 @@ function battlephase() { //戦闘開始関数
 	$("#attack").html("こうげき");
 	$("#attackmagic").html("こうげきまほう");
 	$("#recoverymagic").html("かいふくまほう");
+	$('#command').css({
+		'border':'1px solid black',
+		'bottom':'10px'
+	});
 }
 
 function commandfun(command) { //コマンド実行関数

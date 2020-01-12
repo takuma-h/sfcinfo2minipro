@@ -9,15 +9,23 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <title>Document</title>
 </head>
+
 <body>
     <p id="battlemessage"></p>
-    <p id="heroparameters"></p>
-    <p id="enemyparameters"></p>
-    <p id="attack" onclick="commandfun(0);"></p>
-    <p id="attackmagic" onclick="commandfun(1);"></p>
-    <p id="recoverymagic" onclick="commandfun(2);"></p>
+
+    <div id="parameters">
+        <p id="heroparameters"></p>
+        <p id="enemyparameters"></p>
+    </div>
+
+    <div id="command">
+        <p id="attack" onclick="commandfun(0);"></p>
+        <p id="attackmagic" onclick="commandfun(1);"></p>
+        <p id="recoverymagic" onclick="commandfun(2);"></p>
+    </div>
+    
     <div id="wrapper">
-    <canvas id="main"></canvas>
+        <canvas id="main"></canvas>
     </div> 
 </body>
 </html>

@@ -2,15 +2,28 @@ body{
 	margin: 0px;
 	padding: 0px;
 	position: relative;
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 
 body #wrapper{
 	width: 100%;
 	height: 100%;
 	position: fixed;
+	z-index: 1;
 }
 
-body {
-	background-repeat: no-repeat;
-	background-size: cover;
-  }
+#command {
+	background-color: black;
+	color: white;
+	border-color: white;
+	border-radius: 20px;
+	width: 150px;
+	height: 150px;
+	text-align: center;
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	z-index: 2;
+}
+
