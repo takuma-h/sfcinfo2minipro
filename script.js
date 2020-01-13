@@ -56,11 +56,11 @@ $(document).ready( function(){ //サイト起動時の処理
 
 
 function keydown() { //キーイベント関数
-	if (battlecheck) {
+	if (battlecheck) { //戦闘中なら関数を抜ける
 		return;
 	}
 	messagereset();
-	var keyname = event.keyCode;
+	var keyname = event.keyCode; //押されたキーの情報を取得
 	$("#battlemessage").html("");
 	$("#heroparameters").html("");
 	$("#enemyparameters").html("");
@@ -68,7 +68,7 @@ function keydown() { //キーイベント関数
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
 	$('body').css('background-image', 'url(map.png)');
-	for (let i = 0; i < enemyarray.length; i++) {
+	for (let i = 0; i < enemyarray.length; i++) { //敵を描画
 		if (enemyarray[i].life) {
 			ctx.drawImage(enemyarray[i].image, enemyarray[i].x, enemyarray[i].y, 50, 50);
 		}
@@ -93,8 +93,8 @@ function keydown() { //キーイベント関数
 		default:
 			break;
 	}
-	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50);
-	for (let i = 0; i < enemyarray.length; i++) {
+	ctx.drawImage(hero, heropara.x, heropara.y, 50, 50); //勇者の描画
+	for (let i = 0; i < enemyarray.length; i++) { //モンスターの描画
 		if (heropara.x === enemyarray[i].x && heropara.y === enemyarray[i].y && enemyarray[i].life) {
 			ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
 			battleenemy = enemyarray[i];
