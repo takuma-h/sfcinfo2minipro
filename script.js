@@ -1,8 +1,6 @@
 //各種定義
-var wall = new Image();
-wall.src = "wall.png";
 var hero = new Image();
-hero.src = "hero.jpg";
+hero.src = "hero.png";
 var heropara = { x : 0 , y : 0 , hp : 300 , mp : 20 , pdamage : 20 , mdamage : 30 , healpoint : 30};
 var battlecheck = false;
 var battleenemy;
@@ -27,8 +25,8 @@ class monster {
 }
 
 var enemypara = new monster(300, 300, 100, 0, 20, 30, 30, 'monster.png', 'スライム');
-var enemypara2 = new monster(500, 500, 200, 20, 20, 30, 30, 'monster2.jpg', 'メタルキングスライム');
-var enemypara3 = new monster(700, 700, 100, 0, 20, 30, 30, 'monster.png', 'スライム');
+var enemypara2 = new monster(500, 500, 200, 20, 20, 30, 30, 'monster2.png', 'ドラゴン');
+var enemypara3 = new monster(400, 200, 100, 0, 20, 30, 30, 'monster.png', 'スライム');
 var enemyarray = [enemypara, enemypara2, enemypara3];
 //--------------------------------------------------------------------------------------------モンスター初期設定ここまで
 
@@ -49,6 +47,7 @@ function sizing(){
 $(document).ready( function(){ //サイト起動時の処理
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
+	$('body').css('background-image', 'url(map.png)');
 	for (let i = 0; i < enemyarray.length; i++) {
 		ctx.drawImage(enemyarray[i].image, enemyarray[i].x, enemyarray[i].y, 50, 50);
 	}
@@ -60,6 +59,7 @@ function keydown() { //キーイベント関数
 	if (battlecheck) {
 		return;
 	}
+	messagereset();
 	var keyname = event.keyCode;
 	$("#battlemessage").html("");
 	$("#heroparameters").html("");
@@ -67,6 +67,7 @@ function keydown() { //キーイベント関数
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
+	$('body').css('background-image', 'url(map.png)');
 	for (let i = 0; i < enemyarray.length; i++) {
 		if (enemyarray[i].life) {
 			ctx.drawImage(enemyarray[i].image, enemyarray[i].x, enemyarray[i].y, 50, 50);
@@ -108,24 +109,34 @@ function battlephase() { //戦闘開始関数
 	var canvas = document.getElementById('main');
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
-	//$('body').css('background-image', 'url(wall.png)');
+	$('body').css('background-image', 'url(battleback.jpeg)');
+	ctx.drawImage(hero, 10, 250, 200, 200);
+	ctx.drawImage(battleenemy.image, 1000, 10, 200, 200);
 	$("#battlemessage").html(battleenemy.name + "が現れた！");
-	$("#heroparameters").html("勇者　HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html(battleenemy.name + "　HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
+	$("#heroparameters").html("勇者<br>HP:" + heropara.hp + "MP:" + heropara.mp);
+	$("#enemyparameters").html(battleenemy.name + "<br>HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
 	$("#attack").html("こうげき");
 	$("#attackmagic").html("こうげきまほう");
 	$("#recoverymagic").html("かいふくまほう");
 	$('#command').css({
-		'border':'1px solid black',
-		'bottom':'10px'
+		'border':'5px solid white',
+		'background-color':'black',
+	});
+	$('#battlemessage').css({
+		'border':'5px solid white',
+		'background-color':'black',
+	});
+	$('#parameters').css({
+		'border':'5px solid white',
+		'background-color':'black',
 	});
 }
 
 function commandfun(command) { //コマンド実行関数
 	var ecommand = Math.floor(Math.random() * 3);
 	var battlearray = damagecalc(command, heropara, battleenemy);
-	$("#heroparameters").html("勇者　HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html(battleenemy.name + "　HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
+	$("#heroparameters").html("勇者<br>HP:" + heropara.hp + "MP:" + heropara.mp);
+	$("#enemyparameters").html(battleenemy.name + "<br>HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
 	heromessage(battlearray[0], battlearray[1], command, battleenemy.name);
 	if (battlearray[0] === 3) {
 		$("#battlemessage").append(battleenemy.name + "は倒れた！<br>矢印キーでマップに戻る");
@@ -139,8 +150,8 @@ function commandfun(command) { //コマンド実行関数
 	}
 	battlearray = damagecalc(ecommand, battleenemy, heropara, battleenemy.name);
 	enemymessage(battlearray[0], battlearray[1], ecommand, battleenemy.name);
-	$("#heroparameters").html("勇者　HP:" + heropara.hp + "MP:" + heropara.mp);
-	$("#enemyparameters").html(battleenemy.name + "　HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
+	$("#heroparameters").html("勇者<br>HP:" + heropara.hp + "MP:" + heropara.mp);
+	$("#enemyparameters").html(battleenemy.name + "<br>HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
 	if (battlearray[0] === 3) {
 		$("#battlemessage").append("勇者は倒れた！<br>GAMEOVER");
 		$("#attack").html("");
@@ -217,4 +228,19 @@ function enemymessage(hitcheck, damage, command, name) {
 	else if (command === 2) {
 		$("#battlemessage").append(name + "はホイミを唱えた！" + name + "は" + damage + "回復した！");
 	}
+}
+
+function messagereset() {
+	$('#command').css({
+		'border':'initial',
+		'background-color':'initial',
+	});
+	$('#battlemessage').css({
+		'border':'initial',
+		'background-color':'initial',
+	});
+	$('#parameters').css({
+		'border':'initial',
+		'background-color':'initial',
+	});
 }
