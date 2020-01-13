@@ -110,8 +110,8 @@ function battlephase() { //戦闘開始関数
 	var ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, $("#wrapper").width(), $("#wrapper").height());
 	$('body').css('background-image', 'url(battleback.jpeg)');
-	ctx.drawImage(hero, 10, 250, 200, 200);
-	ctx.drawImage(battleenemy.image, 1000, 10, 200, 200);
+	ctx.drawImage(hero, 100, 250, 200, 200);
+	ctx.drawImage(battleenemy.image, $("#wrapper").width() - 300, 100, 200, 200);
 	$("#battlemessage").html(battleenemy.name + "が現れた！");
 	$("#heroparameters").html("勇者<br>HP:" + heropara.hp + "MP:" + heropara.mp);
 	$("#enemyparameters").html(battleenemy.name + "<br>HP:" + battleenemy.hp + "MP:" + battleenemy.mp);
