@@ -231,16 +231,11 @@ function enemymessage(hitcheck, damage, command, name) {
 }
 
 function messagereset() {
-	$('#command').css({
-		'border':'initial',
-		'background-color':'initial',
-	});
-	$('#battlemessage').css({
-		'border':'initial',
-		'background-color':'initial',
-	});
-	$('#parameters').css({
-		'border':'initial',
-		'background-color':'initial',
-	});
+	let idarray = ['#command', '#battlemessage', '#parameters'];
+	for (let i = 0; i < idarray.length; i++) {
+		$(idarray[i]).css({
+			'border':'initial',
+			'background-color':'initial',
+		});
+	}
 }
